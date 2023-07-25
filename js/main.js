@@ -8,7 +8,7 @@ let time_counter = 0;
 // let y = canvas.height - 48;
 let rightPressed = false;
 let leftPressed = false;
-let spacePressed = false;
+let upPressed = false;
 
 let drawPointX = 0;
 let mapData = [
@@ -27,6 +27,8 @@ let mapData = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
+
+
 var img = new Image();
 img.src = './img/1.png'; //相対URLの場合
 
@@ -44,41 +46,88 @@ class Entity{
         this.xAccel = 0;
         this.yAccel = 0;
         this.groundFlag = true;
+        this.isJump = false;
     //    this.liveFlag = 1;
     }
 
-    updateStatus(isLeft, isRight, isSpace){        
+    //new 床の判定を行う関数
+    
+    checkFloor(){
+        if(this.yVelo<0) return;
+
+        if(isBlock(this.xPos, this.yPos))
+        {
+            //this.yVelo = 0;
+            this.yPos = canvas.height - 80;//ブロックのy座標+40;
+            this.yVelo  = 0;
+            this.yAccel = 0;
+            this.isJump = false;
+        }
+    }
+
+    updateStatus(isLeft, isRight, isUp){        
         if(isRight){
             this.xPos += 4;
+            console.log("right")
             /*if (this.xPos > canvas.width){
                 this.xPos = canvas.width;
             }*/    
         }
         if(isLeft){
+            console.log("left")
             this.xPos -= 4;
             if (this.xPos < 0){
                 this.xPos = 0;
             }        
         }
-        if(isSpace){
-            this.yVelo  = -20;
-            this.yAccel = 4;
+        if(isUp){
+            if (this.isJump != true){
+                this.yVelo  = -20;
+                this.yAccel = 1;
+                this.isJump = true;
+            }
         }
+
+
         this.xVelo = this.xVelo + this.xAccel;
         this.yVelo = this.yVelo + this.yAccel;
         this.xPos  = this.xPos + this.xVelo;
         this.yPos  = this.yPos + this.yVelo;
-
+        //console.log(this.xPos);
+        //console.log(this.yPos);
+        
+        this.checkFloor(); //床の判定
+        
+        //検証用
+        //console.log(mapData[11][0]);
+        //console.log("y=" + this.yPos);
+        //console.log("x=" + this.xPos);
+/*
         if(this.yPos >= canvas.height - 40){
-            this.yPos = canvas.height - 40;
+            this.yPos = canvas.height - 80;
             this.yVelo = 0;
             this.yAccel = 0;
             // groundFlag = true;
         }
+*/
     }
 }
 
 class User extends Entity{
+}
+
+function isBlock(x,y){
+    const i = Math.trunc((y+40)/40);
+    const j = Math.trunc(x/40)
+    if (y+40 > canvas.height) return true;
+    let bl = mapData[i][j];
+    //console.log(mapData[Math.trunc((y+40)/40)][Math.trunc(x/40)])
+    console.log(bl)
+    //console.log(i)
+    //console.log(j)
+    if(bl==0)  return false;
+    //console.log("true")
+    return true;
 }
 
 document.addEventListener("keydown", keyDownHandler, false);
@@ -92,7 +141,7 @@ function keyDownHandler(e) {
         leftPressed = true;
     }
     else if(e.key == "Up" || e.key == "ArrowUp") {
-        spacePressed = true;
+        upPressed = true;
     }
     
 }
@@ -105,13 +154,14 @@ function keyUpHandler(e) {
         leftPressed = false;
     }
     else if(e.key == "Up" || e.key == "ArrowUp"){
-        spacePressed = false;
+        upPressed = false;
     }
 }
 
 function draw(x, y) {
     drawPointX = parseInt(x/40);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     for(let i = 0; i < 12; i++){
         for(let j = 0; j < 256; j++){
             if(mapData[i][j+drawPointX] == 1){
@@ -147,12 +197,12 @@ function draw(x, y) {
     }
 }
 
-var user = new User(0, canvas.height - 40);
+var user = new User(0, canvas.height - 80);
 
 function main(){
-    user.updateStatus(leftPressed, rightPressed, spacePressed);
+    user.updateStatus(leftPressed, rightPressed, upPressed);
     draw(user.xPos, user.yPos);
-    // ctx.fillText(String(spacePressed), 20, 50);
+    // ctx.fillText(String(upPressed), 20, 50);
 }
 
 setInterval(main, 1000 / fps);

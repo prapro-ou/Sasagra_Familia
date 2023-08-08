@@ -2,6 +2,7 @@ const canvas = document.getElementById("myCanvas");
 const ctx = canvas.getContext("2d");
 
 const fps = 100; //ms
+const blockSize = 40;
 let time = 400;
 let time_counter = 0;
 // let x = 0;
@@ -68,19 +69,11 @@ class Entity{
     updateStatus(isLeft, isRight, isUp){        
         if(isRight){
             this.xPos += 4;
-            console.log("right")
-            /*if (this.xPos > canvas.width){
-                this.xPos = canvas.width;
-            }*/    
-        }
-        if(isLeft){
+            console.log("right");
+        }if(isLeft){
             console.log("left")
             this.xPos -= 4;
-            if (this.xPos < 0){
-                this.xPos = 0;
-            }        
-        }
-        if(isUp){
+        }if(isUp){
             if (this.isJump != true){
                 this.yVelo  = -20;
                 this.yAccel = 1;
@@ -88,11 +81,13 @@ class Entity{
             }
         }
 
-
         this.xVelo = this.xVelo + this.xAccel;
         this.yVelo = this.yVelo + this.yAccel;
         this.xPos  = this.xPos + this.xVelo;
         this.yPos  = this.yPos + this.yVelo;
+        if (this.xPos < 0){
+            this.xPos = 0;
+        }
         //console.log(this.xPos);
         //console.log(this.yPos);
         
@@ -159,31 +154,36 @@ function keyUpHandler(e) {
 }
 
 function draw(x, y) {
-    drawPointX = parseInt(x/40);
+    if(drawPointX + 16 > user.xPos){
+        drawPointX = user.xPos - 16;
+    }else if(drawPointX + 64 < user.xPos){
+        drawPointX = user.xPos - 64;
+    }if(drawPointX < 0) drawPointX = 0;
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for(let i = 0; i < 12; i++){
         for(let j = 0; j < 256; j++){
-            if(mapData[i][j+drawPointX] == 1){
+            if(mapData[i][j] == 1){
                 ctx.beginPath();
-                ctx.rect(40*j-x, 40*i, 40, 40);
+                ctx.rect(40*j-drawPointX, 40*i, 40, 40);
                 ctx.fillStyle = "#00FF00";
                 ctx.fill();
                 //ctx.drawImage(img, 40*j-x, 40*i)
                 ctx.closePath();
-            }else if(mapData[i][j+drawPointX] == 2){
+            }else if(mapData[i][j] == 2){
                 ctx.beginPath();
-                ctx.rect(40*j-x, 40*i, 40, 40);
+                ctx.rect(40*j-drawPointX, 40*i, 40, 40);
                 ctx.fillStyle = "#0000FF";
                 ctx.fill();
                 //ctx.drawImage(img, 40*j-x, 40*i)
                 ctx.closePath();
-
             }
         }
     }
+
     ctx.beginPath();
-    ctx.rect(60, y, 40, 40);
+    ctx.rect(x - drawPointX, y, 40, 40);
     ctx.fillStyle = "#FF0000";
     ctx.fill();
     ctx.closePath();
@@ -201,6 +201,7 @@ var user = new User(0, canvas.height - 80);
 
 function main(){
     user.updateStatus(leftPressed, rightPressed, upPressed);
+
     draw(user.xPos, user.yPos);
     // ctx.fillText(String(upPressed), 20, 50);
 }

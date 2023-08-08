@@ -4,6 +4,7 @@ const ctx = canvas.getContext("2d");
 const fps = 100; //ms
 let time = 400;
 let time_counter = 0;
+let map_tip_size = 32;
 // let x = 0;
 // let y = canvas.height - 48;
 let rightPressed = false;
@@ -12,6 +13,8 @@ let upPressed = false;
 
 let drawPointX = 0;
 let mapData = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
@@ -30,7 +33,7 @@ let mapData = [
 
 
 var img = new Image();
-img.src = './img/1.png'; //相対URLの場合
+img.src = './img/PillBug_sample.png'; //相対URLの場合
 
 // let yVelo = 0;
 // let yAccel = 0;
@@ -47,6 +50,7 @@ class Entity{
         this.yAccel = 0;
         this.groundFlag = true;
         this.isJump = false;
+	this.size = 32;
     //    this.liveFlag = 1;
     }
 
@@ -58,7 +62,7 @@ class Entity{
         if(isBlock(this.xPos, this.yPos))
         {
             //this.yVelo = 0;
-            this.yPos = canvas.height - 80;//ブロックのy座標+40;
+            this.yPos   = Math.trunc(this.yPos / map_tip_size) * map_tip_size; 
             this.yVelo  = 0;
             this.yAccel = 0;
             this.isJump = false;
@@ -66,6 +70,10 @@ class Entity{
     }
 
     updateStatus(isLeft, isRight, isUp){        
+	// 初期化
+	// gravity
+	this.yAccel = 1;
+
         if(isRight){
             this.xPos += 4;
             console.log("right")
@@ -83,7 +91,7 @@ class Entity{
         if(isUp){
             if (this.isJump != true){
                 this.yVelo  = -20;
-                this.yAccel = 1;
+                // this.yAccel = 1;
                 this.isJump = true;
             }
         }
@@ -117,15 +125,16 @@ class User extends Entity{
 }
 
 function isBlock(x,y){
-    const i = Math.trunc((y+40)/40);
-    const j = Math.trunc(x/40)
-    if (y+40 > canvas.height) return true;
-    let bl = mapData[i][j];
+    const i = Math.trunc(y/map_tip_size);
+    const j = Math.trunc(x/map_tip_size)
+    if (y+32 > canvas.height) return true;
+    let bl = mapData[i+1][j];
+    let br = mapData[i+1][j+1];
     //console.log(mapData[Math.trunc((y+40)/40)][Math.trunc(x/40)])
-    console.log(bl)
+    //console.log(bl)
     //console.log(i)
     //console.log(j)
-    if(bl==0)  return false;
+    if(bl == 0 && br == 0)  return false;
     //console.log("true")
     return true;
 }
@@ -157,39 +166,45 @@ function keyUpHandler(e) {
         upPressed = false;
     }
 }
-
 function draw(x, y) {
-    drawPointX = parseInt(x/40);
+    if(drawPointX + 16 > user.xPos){
+        drawPointX = user.xPos - 16;
+    }else if(drawPointX + 64 < user.xPos){
+        drawPointX = user.xPos - 64;
+    }if(drawPointX < 0) drawPointX = 0;
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    for(let i = 0; i < 12; i++){
+    for(let i = 0; i < 15; i++){
         for(let j = 0; j < 256; j++){
-            if(mapData[i][j+drawPointX] == 1){
+            if(mapData[i][j] == 1){
                 ctx.beginPath();
-                ctx.rect(40*j-x, 40*i, 40, 40);
+                ctx.rect(map_tip_size * j-drawPointX, map_tip_size * i, map_tip_size, map_tip_size);
                 ctx.fillStyle = "#00FF00";
                 ctx.fill();
                 //ctx.drawImage(img, 40*j-x, 40*i)
                 ctx.closePath();
-            }else if(mapData[i][j+drawPointX] == 2){
+            }else if(mapData[i][j] == 2){
                 ctx.beginPath();
-                ctx.rect(40*j-x, 40*i, 40, 40);
+                ctx.rect(map_tip_size*j-drawPointX, map_tip_size * i, map_tip_size, map_tip_size);
                 ctx.fillStyle = "#0000FF";
                 ctx.fill();
                 //ctx.drawImage(img, 40*j-x, 40*i)
                 ctx.closePath();
-
             }
         }
     }
-    ctx.beginPath();
-    ctx.rect(60, y, 40, 40);
-    ctx.fillStyle = "#FF0000";
-    ctx.fill();
-    ctx.closePath();
+    //ctx.beginPath();
+    //ctx.rect(x - drawPointX, y, 32, 32);
+    //ctx.fillStyle = "#FF0000";
+    //ctx.fill();
+    //ctx.closePath();
+
+    ctx.drawImage(img,x - drawPointX, y, 32, 32);
 
     ctx.font = ' 48px serif';
     ctx.fillText(String(time), 20, 50)
+    console.log(x,y);
     time_counter += 1;
     if(time_counter == fps){
         time -= 1;
@@ -197,7 +212,7 @@ function draw(x, y) {
     }
 }
 
-var user = new User(0, canvas.height - 80);
+var user = new User(0, canvas.height - 2 * map_tip_size);
 
 function main(){
     user.updateStatus(leftPressed, rightPressed, upPressed);

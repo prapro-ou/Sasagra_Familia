@@ -2,6 +2,7 @@ const canvas = document.getElementById("myCanvas");
 const ctx = canvas.getContext("2d");
 
 const fps = 100; //ms
+const blockSize = 40;
 let time = 400;
 let time_counter = 0;
 let map_tip_size = 32;
@@ -76,19 +77,11 @@ class Entity{
 
         if(isRight){
             this.xPos += 4;
-            console.log("right")
-            /*if (this.xPos > canvas.width){
-                this.xPos = canvas.width;
-            }*/    
-        }
-        if(isLeft){
+            console.log("right");
+        }if(isLeft){
             console.log("left")
             this.xPos -= 4;
-            if (this.xPos < 0){
-                this.xPos = 0;
-            }        
-        }
-        if(isUp){
+        }if(isUp){
             if (this.isJump != true){
                 this.yVelo  = -20;
                 // this.yAccel = 1;
@@ -96,11 +89,13 @@ class Entity{
             }
         }
 
-
         this.xVelo = this.xVelo + this.xAccel;
         this.yVelo = this.yVelo + this.yAccel;
         this.xPos  = this.xPos + this.xVelo;
         this.yPos  = this.yPos + this.yVelo;
+        if (this.xPos < 0){
+            this.xPos = 0;
+        }
         //console.log(this.xPos);
         //console.log(this.yPos);
         
@@ -216,6 +211,7 @@ var user = new User(0, canvas.height - 2 * map_tip_size);
 
 function main(){
     user.updateStatus(leftPressed, rightPressed, upPressed);
+
     draw(user.xPos, user.yPos);
     // ctx.fillText(String(upPressed), 20, 50);
 }

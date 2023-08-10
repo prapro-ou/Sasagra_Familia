@@ -11,6 +11,7 @@ let map_tip_size = 32;
 let rightPressed = false;
 let leftPressed = false;
 let upPressed = false;
+let shiftPressed = false;
 
 let drawPointX = 0;
 let mapData = [
@@ -70,15 +71,23 @@ class Entity{
         }
     }
 
-    updateStatus(isLeft, isRight, isUp){        
+    updateStatus(isLeft, isRight, isUp, isShift){        
 	// 初期化
 	// gravity
 	this.yAccel = 1;
 
         if(isRight){
+            if(isShift){
+                this.xPos += 4;
+                console.log("shift right");
+            }
             this.xPos += 4;
             console.log("right");
         }if(isLeft){
+            if(isShift){
+                this.xPos -= 4;
+                console.log("shift left");
+            }
             console.log("left")
             this.xPos -= 4;
         }if(isUp){
@@ -147,6 +156,9 @@ function keyDownHandler(e) {
     else if(e.key == "Up" || e.key == "ArrowUp") {
         upPressed = true;
     }
+    else if(e.key == "Shift"){
+        shiftPressed = true;
+    }
     
 }
 
@@ -159,6 +171,9 @@ function keyUpHandler(e) {
     }
     else if(e.key == "Up" || e.key == "ArrowUp"){
         upPressed = false;
+    }
+    else if(e.key == "Shift"){
+        shiftPressed = false;
     }
 }
 function draw(x, y) {
@@ -210,7 +225,7 @@ function draw(x, y) {
 var user = new User(0, canvas.height - 2 * map_tip_size);
 
 function main(){
-    user.updateStatus(leftPressed, rightPressed, upPressed);
+    user.updateStatus(leftPressed, rightPressed, upPressed, shiftPressed);
 
     draw(user.xPos, user.yPos);
     // ctx.fillText(String(upPressed), 20, 50);

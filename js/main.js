@@ -66,9 +66,7 @@ class Entity{
         {
             //this.yVelo = 0;
             this.yPos   = Math.trunc(this.yPos / map_tip_size) * map_tip_size; 
-            this.yVelo  = 0;
-            this.yAccel = 0;
-            this.isJump = false;
+            
         }
     }
 
@@ -76,21 +74,21 @@ class Entity{
 	// 初期化
 	// gravity
 	this.yAccel = 1;
-
+    this.xVelo = 0;
         if(isRight){
             if(isShift){
-                this.xPos += 4;
+                this.xVelo = 6;
                 console.log("shift right");
             }
-            this.xPos += 4;
+            this.xVelo = 3;
             console.log("right");
         }if(isLeft){
             if(isShift){
-                this.xPos -= 4;
+                this.xVelo = -6;
                 console.log("shift left");
             }
             console.log("left")
-            this.xPos -= 4;
+            this.xVelo = -3;
         }if(isUp){
             if (this.isJump != true){
                 this.yVelo  = -20;
@@ -101,15 +99,48 @@ class Entity{
 
         this.xVelo = this.xVelo + this.xAccel;
         this.yVelo = this.yVelo + this.yAccel;
-        this.xPos  = this.xPos + this.xVelo;
-        this.yPos  = this.yPos + this.yVelo;
+        let next_right  = this.xPos + this.xVelo + this.size;
+        let next_left   = this.xPos + this.xVelo;
+        let next_bottom = this.yPos + this.yVelo + this.size;
+        let next_top    = this.yPos + this.yVelo;
+        if(this.xVelo >= 0){
+            if(isBlock(next_right, next_bottom) || isBlock(next_right, next_top)){
+                this.xPos = Math.trunc(next_left / map_tip_size) * map_tip_size;
+            }else{
+                this.xPos = this.xPos + this.xVelo;
+            }
+        }else{
+            if(isBlock(next_left, next_bottom) || isBlock(next_left, next_top)){
+                this.xPos = Math.trunc(next_right / map_tip_size) * map_tip_size;
+            }else{
+                this.xPos = this.xPos + this.xVelo;
+            }
+        }
+
+        if(this.yVelo >= 0){
+            if(isBlock(next_right, next_bottom) || isBlock(next_left, next_bottom)){
+                this.yPos = Math.trunc(next_top / map_tip_size) * map_tip_size;
+                this.yVelo  = 0;
+                this.yAccel = 0;
+                this.isJump = false;
+            }else{
+                this.yPos = this.yPos + this.yVelo;
+            }
+        }else{
+            if(isBlock(next_right, next_top) || isBlock(next_left, next_top)){
+                this.yPos = Math.trunc(next_bottom / map_tip_size) * map_tip_size;
+            }else{
+                this.yPos = this.yPos + this.yVelo;
+            }
+        }
+
         if (this.xPos < 0){
             this.xPos = 0;
         }
         //console.log(this.xPos);
         //console.log(this.yPos);
         
-        this.checkFloor(); //床の判定
+        // this.checkFloor(); //床の判定
         
         //検証用
         //console.log(mapData[11][0]);
@@ -135,14 +166,12 @@ class Enemy extends Entity{
 function isBlock(x,y){
     const i = Math.trunc(y/map_tip_size);
     const j = Math.trunc(x/map_tip_size)
-    if (y+32 > canvas.height) return true;
-    let bl = mapData[i+1][j];
-    let br = mapData[i+1][j+1];
+    // if (y+32 > canvas.height) return true;
     //console.log(mapData[Math.trunc((y+40)/40)][Math.trunc(x/40)])
     //console.log(bl)
     //console.log(i)
     //console.log(j)
-    if(bl == 0 && br == 0)  return false;
+    if(mapData[i][j] == 0)  return false;
     //console.log("true")
     return true;
 }
@@ -225,8 +254,8 @@ function draw(x, y) {
         time_counter = 0;
     }
 }
-
-var user = new User(0, canvas.height - 2 * map_tip_size);
+// 操作キャラクターの描画
+var user = new User(0, canvas.height - 3 * map_tip_size);
 
 function main(){
     if(seen == 0){

@@ -6,6 +6,7 @@ const blockSize = 40;
 let time = 400;
 let time_counter = 0;
 let map_tip_size = 32;
+let seen = 0;
 // let x = 0;
 // let y = canvas.height - 48;
 let rightPressed = false;
@@ -52,7 +53,7 @@ class Entity{
         this.yAccel = 0;
         this.groundFlag = true;
         this.isJump = false;
-	this.size = 32;
+	    this.size = 32;
     //    this.liveFlag = 1;
     }
 
@@ -126,6 +127,9 @@ class Entity{
 }
 
 class User extends Entity{
+}
+
+class Enemy extends Entity{   
 }
 
 function isBlock(x,y){
@@ -225,9 +229,17 @@ function draw(x, y) {
 var user = new User(0, canvas.height - 2 * map_tip_size);
 
 function main(){
-    user.updateStatus(leftPressed, rightPressed, upPressed, shiftPressed);
+    if(seen == 0){
+        if(shiftPressed){
+            seen = 1;
+        }
+    }else if(seen == 1){
+        user.updateStatus(leftPressed, rightPressed, upPressed, shiftPressed);
 
-    draw(user.xPos, user.yPos);
+        draw(user.xPos, user.yPos);
+    }else if(seen == 2){
+        ctx.fillText("clear", 20, 50)
+    }
     // ctx.fillText(String(upPressed), 20, 50);
 }
 

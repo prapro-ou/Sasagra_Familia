@@ -37,6 +37,8 @@ let mapData = [
 
 var img = new Image();
 img.src = './img/PillBug_sample.png'; //相対URLの場合
+var enem_img = new Image();
+enem_img.src = './img/1.png'; //相対URLの場合
 
 // let yVelo = 0;
 // let yAccel = 0;
@@ -44,16 +46,17 @@ img.src = './img/PillBug_sample.png'; //相対URLの場合
 
 
 class Entity{
-    constructor(x, y){
-        this.xPos   = x;
-        this.yPos   = y;
-        this.xVelo  = 0;
-        this.yVelo  = 0;
-        this.xAccel = 0;
-        this.yAccel = 0;
+    constructor(x, y, img){
+        this.xPos       = x;
+        this.yPos       = y;
+        this.xVelo      = 0;
+        this.yVelo      = 0;
+        this.xAccel     = 0;
+        this.yAccel     = 0;
         this.groundFlag = true;
-        this.isJump = false;
-	    this.size = 32;
+        this.isJump     = false;
+	    this.size       = 32;
+        this.img        = img;
     //    this.liveFlag = 1;
     }
 
@@ -166,7 +169,14 @@ class Entity{
 class User extends Entity{
 }
 
-class Enemy extends Entity{   
+class Enemy extends Entity{
+    killJudge(user){
+        if(this.size > user.xPos - this.xPos && this.xPos - user.xPos < user.size){
+            if(this.size > user.yPos - this.yPos && this.yPos - user.yPos < user.size){
+                seen = 3;
+            }
+        }
+    }
 }
 
 function isBlock(x,y){
@@ -215,7 +225,8 @@ function keyUpHandler(e) {
         shiftPressed = false;
     }
 }
-function draw(x, y) {
+
+function draw(user, enemy) {
     if(drawPointX + 16 > user.xPos){
         drawPointX = user.xPos - 16;
     }else if(drawPointX + 64 < user.xPos){
@@ -243,16 +254,21 @@ function draw(x, y) {
             }
         }
     }
-    //ctx.beginPath();
+    //
     //ctx.rect(x - drawPointX, y, 32, 32);
     //ctx.fillStyle = "#FF0000";
     //ctx.fill();
-    //ctx.closePath();
+    //;
 
-    ctx.drawImage(img,x - drawPointX, y, 32, 32);
+    ctx.drawImage(user.img,user.xPos - drawPointX, user.yPos, user.size, user.size);
+    for(i = 0; i < enemy.length; i++){
+        ctx.beginPath();
+        ctx.drawImage(enemy[i].img, enemy[i].xPos - drawPointX, enemy[i].yPos, enemy[i].size, enemy[i].size);
+        ctx.closePath();
+    }
 
     ctx.font = ' 48px serif';
-    ctx.fillText(String(x), 20, 50)
+    ctx.fillText(String(time), 20, 50)
     //console.log(x,y);
     time_counter += 1;
     if(time_counter == fps){
@@ -261,7 +277,11 @@ function draw(x, y) {
     }
 }
 // 操作キャラクターの描画
-var user = new User(0, canvas.height - 3 * map_tip_size);
+var user = new User(0, canvas.height - 3 * map_tip_size, img);
+var enemy = [];
+for(i = 0; i < 10; i++){
+    enemy.push(new Enemy(map_tip_size * 5 * (i + 5), canvas.height - 3 * map_tip_size, enem_img));
+}
 
 function main(){
     if(seen == 0){
@@ -270,12 +290,16 @@ function main(){
         }
     }else if(seen == 1){
         user.updateStatus(leftPressed, rightPressed, upPressed, shiftPressed);
-
-        draw(user.xPos, user.yPos);
+        for(i = 0; i < enemy.length; i++){
+            enemy[i].killJudge(user);
+        }
+        draw(user, enemy);
     }else if(seen == 2){
         ctx.fillText("clear", 20, 50)
+    }else if(seen == 3){
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillText("Game Over", 20, 50)
     }
-    // ctx.fillText(String(upPressed), 20, 50);
 }
 
 setInterval(main, 1000 / fps);

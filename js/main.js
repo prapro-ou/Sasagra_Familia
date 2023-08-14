@@ -59,7 +59,7 @@ class Entity{
 
     //new 床の判定を行う関数
     
-    checkFloor(){
+    /*checkFloor(){
         if(this.yVelo<0) return;
 
         if(isBlock(this.xPos, this.yPos))
@@ -68,13 +68,14 @@ class Entity{
             this.yPos   = Math.trunc(this.yPos / map_tip_size) * map_tip_size; 
             
         }
-    }
+    }*/
 
     updateStatus(isLeft, isRight, isUp, isShift){        
 	// 初期化
 	// gravity
-	this.yAccel = 1;
+    this.yAccel = 1;
     this.xVelo = 0;
+    this.groundFlag = isBlock(this.xPos , this.yPos + this.size) || isBlock(this.xPos + this.size - 1 , this.yPos + this.size);
         if(isRight){
             if(isShift){
                 this.xVelo = 6;
@@ -90,47 +91,52 @@ class Entity{
             console.log("left")
             this.xVelo = -3;
         }if(isUp){
-            if (this.isJump != true){
+            if (this.groundFlag){
                 this.yVelo  = -20;
-                // this.yAccel = 1;
-                this.isJump = true;
+                this.groundFlag = false;
             }
         }
 
         this.xVelo = this.xVelo + this.xAccel;
-        this.yVelo = this.yVelo + this.yAccel;
-        let next_right  = this.xPos + this.xVelo + this.size;
+        if(this.groundFlag){
+            this.yVelo = 0;
+        }else{
+            this.yVelo = this.yVelo + this.yAccel;
+        }
+        let next_right  = this.xPos + this.xVelo + this.size - 1;
         let next_left   = this.xPos + this.xVelo;
-        let next_bottom = this.yPos + this.yVelo + this.size;
+        let next_bottom = this.yPos + this.yVelo + this.size - 1;
         let next_top    = this.yPos + this.yVelo;
+        console.log(next_right, next_left, next_top, next_bottom);
+        
+        if(this.yVelo > 0){
+            if(isBlock(this.xPos + map_tip_size - 1, next_bottom) || isBlock(this.xPos, next_bottom)){
+                this.yPos = Math.trunc(next_top / map_tip_size) * map_tip_size;
+                this.yVelo  = 0;
+                this.groundFlag = true;
+            }else{
+                this.yPos = this.yPos + this.yVelo;
+            }
+        }else{
+            if(isBlock(this.xPos + map_tip_size - 1, next_top) || isBlock(this.xPos, next_top)){
+                this.yVelo  = 0;
+                this.yPos = Math.trunc(next_bottom / map_tip_size) * map_tip_size;
+            }else{
+                this.yPos = this.yPos + this.yVelo;
+            }
+        }
+
         if(this.xVelo >= 0){
-            if(isBlock(next_right, next_bottom) || isBlock(next_right, next_top)){
+            if(isBlock(next_right, this.yPos + map_tip_size - 1) || isBlock(next_right, this.yPos)){
                 this.xPos = Math.trunc(next_left / map_tip_size) * map_tip_size;
             }else{
                 this.xPos = this.xPos + this.xVelo;
             }
         }else{
-            if(isBlock(next_left, next_bottom) || isBlock(next_left, next_top)){
+            if(isBlock(next_left, this.yPos + map_tip_size - 1) || isBlock(next_left, this.yPos)){
                 this.xPos = Math.trunc(next_right / map_tip_size) * map_tip_size;
             }else{
                 this.xPos = this.xPos + this.xVelo;
-            }
-        }
-
-        if(this.yVelo >= 0){
-            if(isBlock(next_right, next_bottom) || isBlock(next_left, next_bottom)){
-                this.yPos = Math.trunc(next_top / map_tip_size) * map_tip_size;
-                this.yVelo  = 0;
-                this.yAccel = 0;
-                this.isJump = false;
-            }else{
-                this.yPos = this.yPos + this.yVelo;
-            }
-        }else{
-            if(isBlock(next_right, next_top) || isBlock(next_left, next_top)){
-                this.yPos = Math.trunc(next_bottom / map_tip_size) * map_tip_size;
-            }else{
-                this.yPos = this.yPos + this.yVelo;
             }
         }
 
@@ -246,8 +252,8 @@ function draw(x, y) {
     ctx.drawImage(img,x - drawPointX, y, 32, 32);
 
     ctx.font = ' 48px serif';
-    ctx.fillText(String(time), 20, 50)
-    console.log(x,y);
+    ctx.fillText(String(x), 20, 50)
+    //console.log(x,y);
     time_counter += 1;
     if(time_counter == fps){
         time -= 1;

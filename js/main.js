@@ -37,6 +37,8 @@ let mapData = [
 
 var img = new Image();
 img.src = './img/PillBug_sample.png'; //相対URLの場合
+var enem_img = new Image();
+enem_img.src = './img/1.png'; //相対URLの場合
 
 // let yVelo = 0;
 // let yAccel = 0;
@@ -44,22 +46,23 @@ img.src = './img/PillBug_sample.png'; //相対URLの場合
 
 
 class Entity{
-    constructor(x, y){
-        this.xPos   = x;
-        this.yPos   = y;
-        this.xVelo  = 0;
-        this.yVelo  = 0;
-        this.xAccel = 0;
-        this.yAccel = 0;
+    constructor(x, y, img){
+        this.xPos       = x;
+        this.yPos       = y;
+        this.xVelo      = 0;
+        this.yVelo      = 0;
+        this.xAccel     = 0;
+        this.yAccel     = 0;
         this.groundFlag = true;
-        this.isJump = false;
-	    this.size = 32;
+        this.isJump     = false;
+	    this.size       = 32;
+        this.img        = img;
     //    this.liveFlag = 1;
     }
 
     //new 床の判定を行う関数
     
-    checkFloor(){
+    /*checkFloor(){
         if(this.yVelo<0) return;
 
         if(isBlock(this.xPos, this.yPos))
@@ -68,13 +71,14 @@ class Entity{
             this.yPos   = Math.trunc(this.yPos / map_tip_size) * map_tip_size; 
             
         }
-    }
+    }*/
 
     updateStatus(isLeft, isRight, isUp, isShift){        
 	// 初期化
 	// gravity
-	this.yAccel = 1;
+    this.yAccel = 1;
     this.xVelo = 0;
+    this.groundFlag = isBlock(this.xPos , this.yPos + this.size) || isBlock(this.xPos + this.size - 1 , this.yPos + this.size);
         if(isRight){
             if(isShift){
                 this.xVelo = 6;
@@ -90,47 +94,52 @@ class Entity{
             console.log("left")
             this.xVelo = -3;
         }if(isUp){
-            if (this.isJump != true){
+            if (this.groundFlag){
                 this.yVelo  = -20;
-                // this.yAccel = 1;
-                this.isJump = true;
+                this.groundFlag = false;
             }
         }
 
         this.xVelo = this.xVelo + this.xAccel;
-        this.yVelo = this.yVelo + this.yAccel;
-        let next_right  = this.xPos + this.xVelo + this.size;
+        if(this.groundFlag){
+            this.yVelo = 0;
+        }else{
+            this.yVelo = this.yVelo + this.yAccel;
+        }
+        let next_right  = this.xPos + this.xVelo + this.size - 1;
         let next_left   = this.xPos + this.xVelo;
-        let next_bottom = this.yPos + this.yVelo + this.size;
+        let next_bottom = this.yPos + this.yVelo + this.size - 1;
         let next_top    = this.yPos + this.yVelo;
+        console.log(next_right, next_left, next_top, next_bottom);
+        
+        if(this.yVelo > 0){
+            if(isBlock(this.xPos + map_tip_size - 1, next_bottom) || isBlock(this.xPos, next_bottom)){
+                this.yPos = Math.trunc(next_top / map_tip_size) * map_tip_size;
+                this.yVelo  = 0;
+                this.groundFlag = true;
+            }else{
+                this.yPos = this.yPos + this.yVelo;
+            }
+        }else{
+            if(isBlock(this.xPos + map_tip_size - 1, next_top) || isBlock(this.xPos, next_top)){
+                this.yVelo  = 0;
+                this.yPos = Math.trunc(next_bottom / map_tip_size) * map_tip_size;
+            }else{
+                this.yPos = this.yPos + this.yVelo;
+            }
+        }
+
         if(this.xVelo >= 0){
-            if(isBlock(next_right, next_bottom) || isBlock(next_right, next_top)){
+            if(isBlock(next_right, this.yPos + map_tip_size - 1) || isBlock(next_right, this.yPos)){
                 this.xPos = Math.trunc(next_left / map_tip_size) * map_tip_size;
             }else{
                 this.xPos = this.xPos + this.xVelo;
             }
         }else{
-            if(isBlock(next_left, next_bottom) || isBlock(next_left, next_top)){
+            if(isBlock(next_left, this.yPos + map_tip_size - 1) || isBlock(next_left, this.yPos)){
                 this.xPos = Math.trunc(next_right / map_tip_size) * map_tip_size;
             }else{
                 this.xPos = this.xPos + this.xVelo;
-            }
-        }
-
-        if(this.yVelo >= 0){
-            if(isBlock(next_right, next_bottom) || isBlock(next_left, next_bottom)){
-                this.yPos = Math.trunc(next_top / map_tip_size) * map_tip_size;
-                this.yVelo  = 0;
-                this.yAccel = 0;
-                this.isJump = false;
-            }else{
-                this.yPos = this.yPos + this.yVelo;
-            }
-        }else{
-            if(isBlock(next_right, next_top) || isBlock(next_left, next_top)){
-                this.yPos = Math.trunc(next_bottom / map_tip_size) * map_tip_size;
-            }else{
-                this.yPos = this.yPos + this.yVelo;
             }
         }
 
@@ -160,7 +169,14 @@ class Entity{
 class User extends Entity{
 }
 
-class Enemy extends Entity{   
+class Enemy extends Entity{
+    killJudge(user){
+        if(this.size > user.xPos - this.xPos && this.xPos - user.xPos < user.size){
+            if(this.size > user.yPos - this.yPos && this.yPos - user.yPos < user.size){
+                seen = 3;
+            }
+        }
+    }
 }
 
 function isBlock(x,y){
@@ -209,7 +225,8 @@ function keyUpHandler(e) {
         shiftPressed = false;
     }
 }
-function draw(x, y) {
+
+function draw(user, enemy) {
     if(drawPointX + 16 > user.xPos){
         drawPointX = user.xPos - 16;
     }else if(drawPointX + 64 < user.xPos){
@@ -237,17 +254,22 @@ function draw(x, y) {
             }
         }
     }
-    //ctx.beginPath();
+    //
     //ctx.rect(x - drawPointX, y, 32, 32);
     //ctx.fillStyle = "#FF0000";
     //ctx.fill();
-    //ctx.closePath();
+    //;
 
-    ctx.drawImage(img,x - drawPointX, y, 32, 32);
+    ctx.drawImage(user.img,user.xPos - drawPointX, user.yPos, user.size, user.size);
+    for(i = 0; i < enemy.length; i++){
+        ctx.beginPath();
+        ctx.drawImage(enemy[i].img, enemy[i].xPos - drawPointX, enemy[i].yPos, enemy[i].size, enemy[i].size);
+        ctx.closePath();
+    }
 
     ctx.font = ' 48px serif';
     ctx.fillText(String(time), 20, 50)
-    console.log(x,y);
+    //console.log(x,y);
     time_counter += 1;
     if(time_counter == fps){
         time -= 1;
@@ -255,7 +277,11 @@ function draw(x, y) {
     }
 }
 // 操作キャラクターの描画
-var user = new User(0, canvas.height - 3 * map_tip_size);
+var user = new User(0, canvas.height - 3 * map_tip_size, img);
+var enemy = [];
+for(i = 0; i < 10; i++){
+    enemy.push(new Enemy(map_tip_size * 5 * (i + 5), canvas.height - 3 * map_tip_size, enem_img));
+}
 
 function main(){
     if(seen == 0){
@@ -264,12 +290,16 @@ function main(){
         }
     }else if(seen == 1){
         user.updateStatus(leftPressed, rightPressed, upPressed, shiftPressed);
-
-        draw(user.xPos, user.yPos);
+        for(i = 0; i < enemy.length; i++){
+            enemy[i].killJudge(user);
+        }
+        draw(user, enemy);
     }else if(seen == 2){
         ctx.fillText("clear", 20, 50)
+    }else if(seen == 3){
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillText("Game Over", 20, 50)
     }
-    // ctx.fillText(String(upPressed), 20, 50);
 }
 
 setInterval(main, 1000 / fps);

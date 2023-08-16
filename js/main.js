@@ -13,9 +13,10 @@ let time         = 400;
 let time_counter = 0;
 let score        = 0;
 let scene = 0;
-var enemyX = [];
-var enemyY = [];
-
+var enemyX = [320, 360, 500];
+var enemyY = [300, 300, 400];
+var itemX  = [100, 150, 200];
+var itemY  = [200, 200, 200];
 
 let drawPointX = 0;
 let mapData = [
@@ -204,12 +205,12 @@ tile2_img.src = './img/TileRock3.png';
 var user         = new User(0, canvas.height - 3 * map_tip_size, img);
 var enemy        = [];
 var item         = [];
-for(i = 0; i < 10; i++){
-    enemy.push(new Enemy(map_tip_size * 5 * (i + 5), canvas.height - 3 * map_tip_size, enem_img));
+for(i = 0; i < enemyX.length; i++){
+    enemy.push(new Enemy(enemyX[i], enemyY[i], enem_img));
 }
 
-for(i = 0; i < 10; i++){
-    item.push(new Item(map_tip_size * 7 * (i + 5), canvas.height - 3 * map_tip_size, item_img, 1000));
+for(i = 0; i < itemX.length; i++){
+    item.push(new Item(itemX[i], itemY[i], item_img, 1000));
 }
 
 function Initialize(){
@@ -268,10 +269,10 @@ function keyUpHandler(e) {
 
 function draw(user, enemy) {
     // console.log("draw");
-    if(drawPointX + 16 > user.xPos){
-        drawPointX = user.xPos - 16;
-    }else if(drawPointX + 64 < user.xPos){
-        drawPointX = user.xPos - 64;
+    if(drawPointX + 128 > user.xPos){
+        drawPointX = user.xPos - 128;
+    }else if(drawPointX + 192 < user.xPos){
+        drawPointX = user.xPos - 192;
     }if(drawPointX < 0) drawPointX = 0;
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -347,7 +348,7 @@ function main(){
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillText("Game Over", 20, 50);
         if(shiftPressed){
-            seen = 0;
+            scene = 0;
         }
     }
 }

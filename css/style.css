@@ -1,9 +1,9 @@
 body{
-    background-color: black;
+    background-color: rgb(255, 255, 255);
 }
 
 canvas { 
-    background: white; 
-    display: black; 
+    background: rgb(185, 229, 255); 
+    display: rgb(255, 255, 255); 
     margin: 0 auto;
 }

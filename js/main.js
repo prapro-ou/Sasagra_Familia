@@ -5,6 +5,7 @@ const fps = 100; //ms
 const blockSize = 40;
 let time = 400;
 let time_counter = 0;
+let score = 0;
 let map_tip_size = 32;
 let seen = 0;
 // let x = 0;
@@ -13,6 +14,9 @@ let rightPressed = false;
 let leftPressed = false;
 let upPressed = false;
 let shiftPressed = false;
+
+var enemyX = [];
+var enemyY = [];
 
 let drawPointX = 0;
 let mapData = [
@@ -54,24 +58,28 @@ tile2_img.src = './img/TileRock3.png';
 
 class Item {
     constructor(x, y, img, points) {
-      this.x = x;
-      this.y = y;
-      this.img = item_img; 
-      this.points = points; // ポイント
-      this.visible = true; // アイテムが表示されているかどうか
+        this.xPos    = x;
+        this.yPos    = y;
+        this.size    = map_tip_size;
+        this.img     = img; 
+        this.points  = points; // ポイント
+        this.visible = true; // アイテムが表示されているかどうか
     }
   
     // アイテムに触れた際の処理
-    touch() {
-      if (this.visible) {
-        this.visible = false;
-        return this.points; // ポイントを返す
+    touch(user) {
+    if(this.size > user.xPos - this.xPos && this.xPos - user.xPos < user.size){
+        if(this.size > user.yPos - this.yPos && this.yPos - user.yPos < user.size){
+            if (this.visible) {
+            this.visible = false;
+            score += this.points; // ポイントを返す
+        }
       }
-      return 0; // アイテムが既に消えていた場合、ポイントは加算されない
+    //   return 0; // アイテムが既に消えていた場合、ポイントは加算されない
     }
   }
+}
 
-  
 
 class Entity{
     constructor(x, y, img){
@@ -89,19 +97,6 @@ class Entity{
         this.dir        = 0;
     }
 
-    //new 床の判定を行う関数
-    
-    /*checkFloor(){
-        if(this.yVelo<0) return;
-
-        if(isBlock(this.xPos, this.yPos))
-        {
-            //this.yVelo = 0;
-            this.yPos   = Math.trunc(this.yPos / map_tip_size) * map_tip_size; 
-            
-        }
-    }*/
-
     updateStatus(isLeft, isRight, isUp, isShift){        
 	// 初期化
 	// gravity
@@ -113,19 +108,19 @@ class Entity{
             this.xVelo = 3;
             if(isShift){
                 this.xVelo = 18;
-                console.log("shift right");
+                // console.log("shift right");
                 this.dir = 2; //〇状態
             }
-            console.log("right");
+            // console.log("right");
         }if(isLeft){
             this.dir = 1; //左方向を向く
             this.xVelo = -3;
             if(isShift){
                 this.xVelo = -18;
-                console.log("shift left");
+                // console.log("shift left");
                 this.dir = 2; //〇状態
             }
-            console.log("left")
+            // console.log("left")
         }if(isUp){
             if (this.groundFlag){
                 this.yVelo  = -20;
@@ -143,7 +138,6 @@ class Entity{
         let next_left   = this.xPos + this.xVelo;
         let next_bottom = this.yPos + this.yVelo + this.size - 1;
         let next_top    = this.yPos + this.yVelo;
-        console.log(next_right, next_left, next_top, next_bottom);
         
         if(this.yVelo > 0){
             if(isBlock(this.xPos + map_tip_size - 1, next_bottom) || isBlock(this.xPos, next_bottom)){
@@ -179,23 +173,6 @@ class Entity{
         if (this.xPos < 0){
             this.xPos = 0;
         }
-        //console.log(this.xPos);
-        //console.log(this.yPos);
-        
-        // this.checkFloor(); //床の判定
-        
-        //検証用
-        //console.log(mapData[11][0]);
-        //console.log("y=" + this.yPos);
-        //console.log("x=" + this.xPos);
-/*
-        if(this.yPos >= canvas.height - 40){
-            this.yPos = canvas.height - 80;
-            this.yVelo = 0;
-            this.yAccel = 0;
-            // groundFlag = true;
-        }
-*/
     }
 }
 
@@ -214,14 +191,9 @@ class Enemy extends Entity{
 
 function isBlock(x,y){
     const i = Math.trunc(y/map_tip_size);
-    const j = Math.trunc(x/map_tip_size)
-    // if (y+32 > canvas.height) return true;
-    //console.log(mapData[Math.trunc((y+40)/40)][Math.trunc(x/40)])
-    //console.log(bl)
-    //console.log(i)
-    //console.log(j)
+    const j = Math.trunc(x/map_tip_size);
+
     if(mapData[i][j] == 0)  return false;
-    //console.log("true")
     return true;
 }
 
@@ -241,7 +213,6 @@ function keyDownHandler(e) {
     else if(e.key == "Shift"){
         shiftPressed = true;
     }
-    
 }
 
 function keyUpHandler(e) {
@@ -260,7 +231,7 @@ function keyUpHandler(e) {
 }
 
 function draw(user, enemy) {
-    console.log("draw");
+    // console.log("draw");
     if(drawPointX + 16 > user.xPos){
         drawPointX = user.xPos - 16;
     }else if(drawPointX + 64 < user.xPos){
@@ -282,37 +253,43 @@ function draw(user, enemy) {
             }
         }
     }
-    //
-    //ctx.rect(x - drawPointX, y, 32, 32);
-    //ctx.fillStyle = "#FF0000";
-    //ctx.fill();
-    //;
+
     if(user.dir == 0){ctx.drawImage(user.img, 64, 0, 64, 48, user.xPos - drawPointX, user.yPos, user.size, user.size);}
     else if(user.dir == 1){ctx.drawImage(user.img, 0, 0, 64, 48, user.xPos - drawPointX, user.yPos, user.size, user.size);}
     else if(user.dir == 2){ctx.drawImage(user.img, 126, 0, 64, 54, user.xPos - drawPointX, user.yPos, user.size, user.size);}
 
-
-    //ctx.drawImage(user.img,user.xPos - drawPointX, user.yPos, user.size, user.size);
     for(i = 0; i < enemy.length; i++){
         ctx.beginPath();
         ctx.drawImage(enemy[i].img, enemy[i].xPos - drawPointX, enemy[i].yPos, enemy[i].size, enemy[i].size);
         ctx.closePath();
     }
 
+    for(i = 0; i < item.length; i++){
+        if(item[i].visible){
+            ctx.beginPath();
+            ctx.drawImage(item[i].img, item[i].xPos - drawPointX, item[i].yPos, item[i].size, item[i].size);
+            ctx.closePath();
+        }
+    }
+
     ctx.font = ' 48px serif';
     ctx.fillText(String(time), 20, 50)
-    //console.log(x,y);
     time_counter += 1;
     if(time_counter == fps){
         time -= 1;
         time_counter = 0;
     }
 }
-// 操作キャラクターの描画
+
 var user = new User(0, canvas.height - 3 * map_tip_size, img);
 var enemy = [];
 for(i = 0; i < 10; i++){
     enemy.push(new Enemy(map_tip_size * 5 * (i + 5), canvas.height - 3 * map_tip_size, enem_img));
+}
+
+var item = [];
+for(i = 0; i < 10; i++){
+    item.push(new Item(map_tip_size * 7 * (i + 5), canvas.height - 3 * map_tip_size, item_img, 1000));
 }
 
 function main(){
@@ -325,12 +302,19 @@ function main(){
         for(i = 0; i < enemy.length; i++){
             enemy[i].killJudge(user);
         }
+        for(i = 0; i < item.length; i++){
+            item[i].touch(user);
+            // console.log(item[i].xPos);
+        }
+
         draw(user, enemy);
+        console.log(score);
     }else if(seen == 2){
-        ctx.fillText("clear", 20, 50)
+        ctx.fillText("clear", 20, 50);
+
     }else if(seen == 3){
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillText("Game Over", 20, 50)
+        ctx.fillText("Game Over", 20, 50);
     }
 }
 
